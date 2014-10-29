@@ -8,7 +8,7 @@
     "run_list": [
       "role[Basic]",
       "recipe[contrail]",
-      "recipe[contrail::nova-compute]",
+      "recipe[contrail::vrouter]",
     ],
     "override_attributes": {
     }

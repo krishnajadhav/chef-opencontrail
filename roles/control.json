@@ -1,0 +1,17 @@
+{
+    "name": "Controlnode",
+    "chef_type": "role",
+    "json_class": "Chef::Role",
+    "default_attributes": {
+    },
+    "description": "A functional control node in a opencontrail cluster",
+    "run_list": [
+      "role[Basic]",
+      "recipe[contrail]",
+      "recipe[contrail::control]",
+    ],
+    "override_attributes": {
+    }
+}
+
+
