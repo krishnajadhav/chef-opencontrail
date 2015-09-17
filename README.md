@@ -1,4 +1,4 @@
-chef-contrail
+contrail-chef
 =============
 
-Chef cookbook/recipes for Opencontrail
+Contrail Chef Cookbooks

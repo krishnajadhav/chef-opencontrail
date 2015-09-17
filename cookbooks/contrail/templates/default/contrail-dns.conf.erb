@@ -5,12 +5,18 @@
 ################################################
 
 [DEFAULT]
-log_file = /var/log/contrail/contrail-dns.log
 # collectors= # Provided by discovery server
 # dns_config_file=dns_config.xml
-hostip = <%=node['contrail']['management']['ip']%>
+# named_config_file=named.conf             # named config file
+# named_config_directory=/etc/contrail/dns # named config directory
+# named_log_file=/var/log/named/bind.log   # named log file
+# rndc_config_file=rndc.conf               # rndc config file
+# rndc_secret=secretkey                    # rndc secret
+hostip = <%= node['ipaddress'] %>
 # hostname= # Retrieved as `hostname`
 # http_server_port=8092
+# dns_server_port=53
+log_file = /var/log/contrail/contrail-dns.log
 # log_category=
 # log_disable=0
 # log_file=<stdout>
@@ -21,9 +27,10 @@ hostip = <%=node['contrail']['management']['ip']%>
 # test_mode=0
 
 [DISCOVERY]
-server =  <%=node['contrail']['management']['vip']%>
+server =  <%=node['ipaddress']%>
 #port = 5998
 
 [IFMAP]
-user = dns-<%=node['contrail']['node_number']%>
-password = <%=get_config('contrail-dns-passwd')%>
+certs_store=
+user = <%= node['ipaddress'] %>.dns
+password = <%= node['ipaddress'] %>.dns

@@ -27,7 +27,7 @@ config.orchestration.Manager = 'openstack'
  * false - These values should be taken from auth catalog list
  *
 *****************************************************************************/
-config.serviceEndPointFromConfig = false;
+config.serviceEndPointFromConfig = true;
 
 /****************************************************************************
  * This boolean flag indicates if serviceEndPointFromConfig is set as false,
@@ -79,7 +79,7 @@ config.serviceEndPointTakePublicURL = true;
  *      if you do not want to specify then use ''
 *****************************************************************************/
 config.networkManager = {};
-config.networkManager.ip = '127.0.0.1';
+config.networkManager.ip = '<%=node['ipaddress']%>';
 config.networkManager.port = '9696'
 config.networkManager.authProtocol = 'http';
 config.networkManager.apiVersion = [];
@@ -87,7 +87,7 @@ config.networkManager.strictSSL = false;
 config.networkManager.ca = '';
 
 config.imageManager = {};
-config.imageManager.ip = '127.0.0.1';
+config.imageManager.ip = '<%= @openstack_controller_ip %>';
 config.imageManager.port = '9292';
 config.imageManager.authProtocol = 'http';
 config.imageManager.apiVersion = ['v1', 'v2'];
@@ -95,7 +95,7 @@ config.imageManager.strictSSL = false;
 config.imageManager.ca = '';
 
 config.computeManager = {};
-config.computeManager.ip = '127.0.0.1';
+config.computeManager.ip = '<%= @openstack_controller_ip %>';
 config.computeManager.port = '8774';
 config.computeManager.authProtocol = 'http';
 config.computeManager.apiVersion = ['v1.1', 'v2'];
@@ -103,7 +103,7 @@ config.computeManager.strictSSL = false;
 config.computeManager.ca = '';
 
 config.identityManager = {};
-config.identityManager.ip = '<%=node['contrail']['management']['vip']%>';
+config.identityManager.ip = '<%= @openstack_controller_ip %>';
 config.identityManager.port = '5000';
 config.identityManager.authProtocol = '<%=node['contrail']['protocol']['keystone']%>';
 /******************************************************************************
@@ -114,11 +114,11 @@ config.identityManager.authProtocol = '<%=node['contrail']['protocol']['keystone
  * empty array.
 ******************************************************************************/
 config.identityManager.apiVersion = ['v2.0'];
-config.identityManager.strictSSL = true;
-config.identityManager.ca = '/etc/ssl/certs/ssl-contrail.pem';
+config.identityManager.strictSSL = false;
+config.identityManager.ca = '';
 
 config.storageManager = {};
-config.storageManager.ip = '127.0.0.1';
+config.storageManager.ip = '<%= @openstack_controller_ip %>';
 config.storageManager.port = '8776';
 config.storageManager.authProtocol = 'http';
 config.storageManager.apiVersion = ['v1'];
@@ -127,7 +127,7 @@ config.storageManager.ca = '';
 
 // VNConfig API server and port.
 config.cnfg = {};
-config.cnfg.server_ip = '<%=node['contrail']['management']['vip']%>';
+config.cnfg.server_ip = '<%=node['ipaddress']%>';
 config.cnfg.server_port = '8082';
 config.cnfg.authProtocol = 'http';
 config.cnfg.strictSSL = false;
@@ -135,15 +135,26 @@ config.cnfg.ca = '';
 
 // Analytics API server and port.
 config.analytics = {};
-config.analytics.server_ip = '<%=node['contrail']['management']['vip']%>';
+config.analytics.server_ip = '<%=node['ipaddress']%>';
 config.analytics.server_port = '8081';
 config.analytics.authProtocol = 'http';
 config.analytics.strictSSL = false;
 config.analytics.ca = '';
 
+// vcenter related parameters
+config.vcenter = {};
+config.vcenter.server_ip = '127.0.0.1';         //vCenter IP
+config.vcenter.server_port = '443';             //Port
+config.vcenter.authProtocol = 'https';          //http or https
+config.vcenter.datacenter = 'vcenter';          //datacenter name
+config.vcenter.dvsswitch = 'vswitch';           //dvsswitch name
+config.vcenter.strictSSL = false;               //Validate the certificate or ignore
+config.vcenter.ca = '';                         //specify the certificate key file
+config.vcenter.wsdl = '/usr/src/contrail/contrail-web-core/webroot/js/vim.wsdl';
+
 /* Discovery Service */
 config.discoveryService = {};
-config.discoveryService.server_ip = '<%=node['contrail']['management']['vip']%>';
+config.discoveryService.server_ip = '<%=node['ipaddress']%>';
 config.discoveryService.server_port = '5998';
 /* Specifiy true if subscription to discovery server should be enabled, else
  * specify false. Other than true/false value here is treated as true
@@ -159,14 +170,9 @@ config.jobServer.server_port = '3000';
 config.files = {};
 config.files.download_path = '/tmp';
 
-/* Redis Server */
-config.redis = {};
-config.redis.server_port = '6379';
-config.redis.server_ip = '<%=node['contrail']['management']['ip']%>';
-
 /* Cassandra Server */
 config.cassandra = {};
-config.cassandra.server_ips = [<%= @servers.collect{|x| '\''+x['contrail']['management']['ip']+'\''}.join(',') %>];
+config.cassandra.server_ips = [<%= @servers.collect{|x| '\''+x['ipaddress']+'\''}.join(',') %>];
 config.cassandra.server_port = '9160';
 config.cassandra.enable_edit = false;
 
@@ -175,7 +181,7 @@ config.kue = {};
 config.kue.ui_port = '3002'
 
 /* IP List to listen on */
-config.webui_addresses = ['<%=node['contrail']['management']['ip']%>'];
+config.webui_addresses = ['0.0.0.0'];
 
 /* Is insecure access to WebUI?
  * If set as false, then all http request will be redirected
@@ -204,16 +210,17 @@ config.redisDBIndex = 1;
 
 /* WebUI Redis Server */
 config.redis_server_port = '6379';
-config.redis_server_ip = '<%=node['contrail']['management']['ip']%>';
+config.redis_server_ip = '<%=node['ipaddress']%>';
 config.redis_dump_file = '/var/lib/redis/dump-webui.rdb';
-
-/* Cache Expiry Time */
-config.cacheExpire = {};
-config.cacheExpire.flow_stat_time = 600; /* Seconds */
-config.cacheExpire.topo_tree_time = 600; /* Seconds */
 
 /* Logo File: Use complete path of logo file location */
 config.logo_file = '/var/lib/contrail-webui-bundle/webroot/img/opencontrail-logo.png';
+
+config.featurePkg = {};
+/* Add new feature Package Config details below */
+config.featurePkg.webController = {};
+config.featurePkg.webController.path = '/usr/src/contrail/contrail-web-controller';
+config.featurePkg.webController.enable = true;
 
 /* Enable/disable Stat Query Links in Sidebar*/
 config.qe = {};
@@ -224,6 +231,39 @@ config.qe.enable_stat_queries = false;
  */
 config.logs = {};
 config.logs.level = 'debug';
+
+/******************************************************************************
+ * Boolean flag getDomainProjectsFromApiServer indicates wheather the project
+ * list should come from API Server or Identity Manager.
+ * If Set
+ *      - true, then project list will come from API Server
+ *      - false, then project list will come from Identity Manager
+ * Default: false
+ *
+******************************************************************************/
+config.getDomainProjectsFromApiServer = false;
+/*****************************************************************************
+* Boolean flag L2_enable indicates the default forwarding-mode of a network.
+* Allowed values : true / false
+* Set this flag to true if all the networks are to be L2 networks,
+* set to false otherwise.
+*****************************************************************************/
+config.network = {};
+config.network.L2_enable = false;
+
+/******************************************************************************
+ * Boolean flag getDomainsFromApiServer indicates wheather the domain
+ * list should come from API Server or Identity Manager.
+ * If Set
+ *      - true, then domain list will come from API Server
+ *      - false, then domain list will come from Identity Manager
+ * Default: true
+ * NOTE: if config.identityManager.apiVersion is set as v2.0, then this flag
+ *       does not have any effect, in that case the domain list is retrieved
+ *       from API Server.
+ *
+*****************************************************************************/
+config.getDomainsFromApiServer = false;
 
 // Export this as a module.
 module.exports = config;

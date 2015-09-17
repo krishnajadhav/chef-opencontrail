@@ -5,19 +5,26 @@
 # Copyright 2014, Juniper Networks
 #
 
-include_recipe "contrail::default"
-
-apt_repository "contrail" do
-    uri node['contrail']['repos']['contrail']
-    distribution node['lsb']['codename']
-    components ["main"]
-    key "contrail.key"
+bash "disable-selinux" do
+    user  "root"
+    code <<-EOC
+       sudo sed -i 's/SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
+       setenforce 0 || true
+    EOC
 end
 
-template "/usr/local/bin/hup_contrail" do
-    source "hup_contrail.erb"
-    mode 0755
-    owner "root"
-    group "root"
-    variables(:servers => get_head_nodes)
+bash "disable-iptables" do
+    user  "root"
+    code <<-EOC
+        sudo chkconfig iptables off
+        sudo iptables --flush
+    EOC
 end
+
+bash "setp-coredump" do
+    user  "root"
+    code <<-EOC
+       echo "TODO .. setup core dump here"
+    EOC
+end
+

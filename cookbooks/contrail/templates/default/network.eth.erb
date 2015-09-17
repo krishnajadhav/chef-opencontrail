@@ -4,6 +4,7 @@
 #
 ################################################
 
-[APISERVER]
-api_server_ip = <%=node['contrail']['management']['vip']%>
-multi_tenancy = True
+DEVICE=<%= @interface %>
+BOOTPROTO=None
+ONBOOT="yes"
+TYPE="Ethernet"

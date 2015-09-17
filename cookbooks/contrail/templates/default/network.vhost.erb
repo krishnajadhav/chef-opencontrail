@@ -4,10 +4,18 @@
 #
 ################################################
 
-auto vhost0
-iface vhost0 inet static
- pre-up vif --create vhost0 --mac $(cat /sys/class/net/<%= @interface %>/address)
- pre-up vif --add vhost0 --mac $(cat /sys/class/net/<%= @interface %>/address) --vrf 0 --mode x --type vhost
- address <%= @ip %>
- netmask <%= @netmask %>
- gateway <%= @gateway %>
+DEVICE=vhost0
+ONBOOT=yes
+BOOTPROTO=none
+IPV6INIT=no
+USERCTL=yes
+IPADDR=<%= @ip %>
+NETMASK=<%= @netmask %>
+NM_CONTROLLED=no
+#NETWORK MANAGER BUG WORKAROUND
+SUBCHANNELS=1,2,3
+GATEWAY=<%= @gateway %>
+DNS1=<%= @dns1 %>
+DNS2=<%= @dns2 %>
+DNS2=<%= @dns3 %>
+DOMAIN=<%= @domain %>

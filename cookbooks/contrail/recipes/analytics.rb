@@ -1,38 +1,43 @@
+
 #
 # Cookbook Name:: contrail
-# Recipe:: analytics
+# Recipe:: contrail-analytics
 #
 # Copyright 2014, Juniper Networks
 #
 
-include_recipe "contrail::common"
-
-%w{ contrail-analytics
-}.each do |pkg|
-    package pkg do
-        action :upgrade
-    end
+class ::Chef::Recipe
+  include ::Contrail
 end
 
-%w{ contrail-analytics-api
-    contrail-collector
-    contrail-query-engine
+package "contrail-openstack-analytics" do
+    action :upgrade
+    notifies :stop, "service[supervisor-analytics]", :immediately
+end
+
+database_nodes = get_database_nodes
+
+%w{ analytics-api
+    collector
+    query-engine
 }.each do |pkg|
-    template "/etc/contrail/#{pkg}.conf" do
-        source "#{pkg}.conf.erb"
+    template "/etc/contrail/contrail-#{pkg}.conf" do
+        source "contrail-#{pkg}.conf.erb"
         owner "contrail"
         group "contrail"
         mode 00640
-        variables(:servers => get_head_nodes)
-        notifies :restart, "service[#{pkg}]", :immediately
+        variables(:servers => database_nodes)
+        notifies :restart, "service[contrail-#{pkg}]", :immediately
     end
 end
 
-%w{ contrail-analytics-api
+
+%w{ supervisor-analytics
+    contrail-analytics-api
     contrail-collector
     contrail-query-engine
-}.each do |svc|
-    service svc do
+}.each do |pkg|
+    service pkg do
         action [:enable, :start]
     end
 end

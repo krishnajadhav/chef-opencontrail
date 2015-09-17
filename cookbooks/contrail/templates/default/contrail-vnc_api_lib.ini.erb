@@ -5,14 +5,18 @@
 ################################################
 
 [global]
-WEB_SERVER = <%=node['contrail']['management']['vip']%>
+;WEB_SERVER = 127.0.0.1
+;WEB_PORT = 9696  ; connection through quantum plugin
+WEB_SERVER = <%=@cfgm_vip%>
+WEB_PORT = 8082 ; connection to api-server directly
 
+BASE_URL = /
+;BASE_URL = /tenants/infra ; common-prefix for all URLs
+
+; Authentication settings (optional)
 [auth]
 AUTHN_TYPE = keystone
-AUTHN_SERVER = <%=node['contrail']['management']['vip']%>
+AUTHN_SERVER = <%= @keystone_server_ip %>
 AUTHN_PROTOCOL = <%=node['contrail']['protocol']['keystone']%>
 AUTHN_PORT = 35357
 AUTHN_URL = /v2.0/tokens
-AUTHN_USER = <%=get_config('keystone-admin-user')%>
-AUTHN_PASSWORD = <%=get_config('keystone-admin-password')%>
-AUTHN_TENANT = <%=node['contrail']['admin_tenant']%>

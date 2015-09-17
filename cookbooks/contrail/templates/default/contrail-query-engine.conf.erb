@@ -5,29 +5,23 @@
 ################################################
 
 [DEFAULT]
-log_file = /var/log/contrail/contrail-query-engine.log
 # analytics_data_ttl=48
-cassandra_server_list = <%= @servers.collect{|x| x['contrail']['management']['ip']+':9160'}.join(' ') %>
-# dup=0
-hostip = <%=node['contrail']['management']['ip']%>
-# hostname= # Retrieved as `hostname`
-# http_server_port=8089
+  cassandra_server_list = <%= @servers.collect{|x| x['ipaddress']+':9160'}.join(' ') %>
+  collectors=127.0.0.1:8086
+  hostip = <%=node['ipaddress']%>
 # log_category=
 # log_disable=0
-# log_file=<stdout>
+  log_file = /var/log/contrail/contrail-query-engine.log
 # log_files_count=10
 # log_file_size=1048576 # 1MB
-# log_level=SYS_NOTICE
-# log_local=0
-# max_slice=100
-# max_tasks=16
-# start_time=0
+  log_level=SYS_NOTICE
+  log_local=1
 # test_mode=0
 
 [DISCOVERY]
-server =  <%=node['contrail']['management']['vip']%>
-#port = 5998
+# server =  <%=node['ipaddress']%>
+# port=5998
 
 [REDIS]
-server = <%=node['contrail']['management']['ip']%>
-port = 6379
+  server = <%=node['ipaddress']%>
+  port = 6379
